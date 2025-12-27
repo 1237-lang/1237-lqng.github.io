@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>娜娜生日快乐</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            height: 100vh;
+            background: #fff0f5;
+            overflow: hidden;
+        }
+        .popup, .password, .wishes, .final {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .password, .wishes, .final {
+            display: none;
+        }
+        h2 {
+            color: #ff69b4;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ffcce6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 25px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 8px;
+            font-weight: bold;
+        }
+        button.cancel {
+            background: #ffcce6;
+            color: #ff69b4;
+        }
+        .bubble {
+            position: absolute;
+            background: linear-gradient(135deg, #ffb6c1, #ffd1dc);
+            border-radius: 20px 20px 20px 5px;
+            padding: 15px;
+            color: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 200px;
+            animation: popIn 0.5s ease-out;
+        }
+        .bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #ffb6c1;
+        }
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .final {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        .final h2 {
+            font-size: 2rem;
+            color: #ff69b4;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 弹窗画面 -->
+    <div class="popup" id="popup">
+        <h2>🎀 生日快乐 🎀</h2>
+        <p>亲爱的娜娜，你有一份专属生日祝福，确定要打开吗？</p >
+        <button onclick="showPassword()">确定</button>
+        <button class="cancel" onclick="alert('那下次再给你惊喜哦~')">取消</button>
+    </div>
+
+    <!-- 密码画面 -->
+    <div class="password" id="password">
+        <h2>🔒 请输入密码</h2>
+        <p>密码是娜娜的生日月份哦~ 提示：12.18</p >
+        <input type="text" id="pwdInput" placeholder="输入密码">
+        <button onclick="checkPassword()">验证</button>
+    </div>
+
+    <!-- 祝福气泡画面 -->
+    <div class="wishes" id="wishes">
+        <h2>🎉 娜娜的专属祝福来啦 🎉</h2>
+        <p>点击屏幕可加速弹出哦~</p >
+    </div>
+
+    <!-- 最终粒子画面 -->
+    <div class="final" id="final">
+        <h2>好娜娜</h2>
+        <h2>Happy Birthday 娜娜</h2>
+    </div>
+
+    <script>
+        // 100条祝福列表
+        const wishesList = [
+            "娜娜生日快乐，新岁像Kitty一样甜~",
+            "娜娜生辰喜乐，笑靥如花每一天~",
+            "娜娜岁岁欢愉，年年皆有新惊喜~",
+            "娜娜颜值up，好运连连开挂啦~",
+            "娜娜生活明朗，一路繁花常相伴~",
+            "娜娜美梦成真，幸福满满绕身边~",
+            "娜娜笑口常开，青春永远驻心间~",
+            "娜娜事事顺心，平安顺遂每一年~",
+            "娜娜钱包鼓鼓，福气多多好运来~",
+            "娜娜被爱包围，温暖常伴不孤单~",
+            "娜娜兴趣盎然，热爱长存乐无边~",
+            "娜娜脚步不停，精彩生活不停歇~",
+            "娜娜心态年轻，永远少女心满满~",
+            "娜娜三餐四季，温柔有趣乐悠悠~",
+            "娜娜星辰大海，勇敢奔赴皆如愿~",
+            "娜娜所念皆愿，所求皆得超幸运~",
+            "娜娜每一岁都奔走在自己热爱里~",
+            "娜娜日子滚烫，人间可爱独一份~",
+            "娜娜眼里有光，心中有爱向未来~",
+            "娜娜一路向阳，未来可期皆精彩~",
+            "娜娜生日喜乐，岁岁平安常安康~",
+            "娜娜生辰快乐，幸福绵长永相伴~",
+            "娜娜生日快乐，万事顺遂超圆满~",
+            "娜娜生日快乐，永远快乐没烦恼~",
+            "娜娜生日这天，甜度直接超标啦~",
+            "娜娜生日限定，快乐无限不打烊~",
+            "娜娜生日打卡，幸福加载百分百~",
+            "娜娜生日Buff，好运拉满一整年~",
+            "娜娜生日解锁，新岁成就全达成~",
+            "娜娜生日到，好运跟着跑~",
+            "娜娜生日欢，笑容格外甜~",
+            "娜娜生日乐，幸福永相伴~",
+            "娜娜生日喜，生活多如意~",
+            "娜娜生日妙，烦恼全抛掉~",
+            "娜娜生日靓，好运自然降~",
+            "娜娜生日棒，快乐久又长~",
+            "娜娜生日俏，每天没烦恼~",
+            "娜娜生日萌，好运把门冲~",
+            "娜娜生日甜，幸福年复年~",
+            "娜娜生日嗨，好运滚滚来~",
+            "娜娜生日炫，快乐常相伴~",
+            "娜娜生日酷，生活有温度~",
+            "娜娜生日赞，好运不间断~",
+            "娜娜生日爽，幸福万年长~",
+            "娜娜生日美，快乐永相随~",
+            "娜娜生日佳，好运到你家~",
+            "娜娜生日优，幸福不用愁~",
+            "娜娜生日特，快乐不停歇~",
+            "娜娜生日绝，好运没边界~",
+            "娜娜生日顶，快乐永无尽~",
+            "娜娜生日牛，幸福不用求~",
+            "娜娜生日炸，好运全拿下~",
+            "娜娜生日强，快乐万年长~",
+            "娜娜生日超，幸福乐淘淘~",
+            "娜娜生日巨，快乐有意义~",
+            "娜娜生日猛，好运把你宠~",
+            "娜娜生日帅，快乐常相伴~",
+            "娜娜生日酷，生活有态度~",
+            "娜娜生日炫，快乐无极限~",
+            "娜娜生日嗨，好运自然来~",
+            "娜娜生日棒，幸福岁月长~",
+            "娜娜生日妙，每天开怀笑~",
+            "娜娜生日甜，好运连成片~",
+            "娜娜生日美，快乐永相随~",
+            "娜娜生日佳，幸福到你家~",
+            "娜娜生日优，快乐不用愁~",
+            "娜娜生日特，幸福有层次~",
+            "娜娜生日绝，快乐不停歇~",
+            "娜娜生日顶，幸福永无尽~",
+            "娜娜生日牛，快乐不用求~",
+            "娜娜生日炸，幸福全拿下~",
+            "娜娜生日强，快乐万年长~",
+            "娜娜生日超，幸福乐逍遥~",
+            "娜娜生日巨，快乐有惊喜~",
+            "娜娜生日猛，幸福把你宠~",
+            "娜娜生日帅，快乐常存在~",
+            "娜娜生日酷，生活有风度~",
+            "娜娜生日炫，快乐大无限~",
+            "娜娜生日嗨，幸福自然来~",
+            "娜娜生日棒，快乐岁月长~",
+            "娜娜生日妙，笑容永不消~",
+            "娜娜生日甜，幸福年复年~",
+            "娜娜生日美，快乐永相随~",
+            "娜娜生日佳，好运到你家~",
+            "娜娜生日优，快乐没忧愁~",
+            "娜娜生日特，幸福有故事~",
+            "娜娜生日绝，快乐不停歇~",
+            "娜娜生日顶，幸福永无尽~",
+            "娜娜生日牛，快乐不用求~",
+            "娜娜生日炸，幸福全拿下~",
+            "娜娜生日强，快乐万年长~",
+            "娜娜生日超，幸福乐陶陶~",
+            "娜娜生日巨，快乐有意义~",
+            "娜娜生日猛，幸福把你宠~",
+            "娜娜生日帅，快乐常相伴~",
+            "娜娜生日酷，生活有态度~",
+            "娜娜生日炫，快乐无极限~"
+        ];
+
+        let wishIndex = 0;
+        let bubbleInterval;
+
+        function showPassword() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('password').style.display = 'block';
+        }
+
+        function checkPassword() {
+            const pwd = document.getElementById('pwdInput').value;
+            if (pwd === '12.18') {
+                document.getElementById('password').style.display = 'none';
+                document.getElementById('wishes').style.display = 'block';
+                startBubbles();
+            } else {
+                alert('密码错误哦，再试试~');
+            }
+        }
+
+        function startBubbles() {
+            bubbleInterval = setInterval(() => {
+                if (wishIndex < wishesList.length) {
+                    createBubble(wishesList[wishIndex]);
+                    wishIndex++;
+                } else {
+                    clearInterval(bubbleInterval);
+                    setTimeout(() => {
+                        document.getElementById('wishes').style.display = 'none';
+                        document.getElementById('final').style.display = 'block';
+                        // 粒子聚焦特效（简化模拟）
+                        const final = document.getElementById('final');
+                        final.style.animation = 'none';
+                        setTimeout(() => {
+                            final.style.animation = 'popIn 1s ease-out';
+                        }, 10);
+                    }, 1000);
+                }
+            }, 600); // 调整弹出间隔，加快整体节奏
+
+            // 点击屏幕加速弹出
+            document.addEventListener('click', () => {
+                if (wishIndex < wishesList.length) {
+                    clearInterval(bubbleInterval);
+                    createBubble(wishesList[wishIndex]);
+                    wishIndex++;
+                    startBubbles();
+                }
+            });
+        }
+
+        function createBubble(text) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.textContent = text;
+            // 随机位置，避免遮挡
+            const maxX = window.innerWidth - 220;
+            const maxY = window.innerHeight - 100;
+            const x = Math.random() * maxX;
+            const y = Math.random() * maxY;
+            bubble.style.left = `${x}px`;
+            bubble.style.top = `${y}px`;
+            document.body.appendChild(bubble);
+        }
+    </script>
+</body>
+</html>
